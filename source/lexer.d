@@ -77,6 +77,14 @@ class Lexer {
 
 	void Lex() {
 		for (i = 0; i < code.length; ++ i) {
+			if (code[i] == '\n') {
+				++ line;
+				col = 0;
+			}
+			else {
+				++ col;
+			}
+		
 			if (inString) {
 				switch (code[i]) {
 					case '"': {
@@ -132,6 +140,16 @@ class Lexer {
 					case '}': {
 						AddReading();
 						AddToken(TokenType.RCurly);
+						break;
+					}
+					case '#': {
+						while (code[i] != '\n') {
+							++ i;
+							++ col;
+						}
+
+						++ line;
+						col = 0;
 						break;
 					}
 					default: reading ~= code[i];

@@ -104,4 +104,42 @@ class Operators {
 		env.variables[left] = Variable(pright, 0);
 		return Value.Reference(env.variables[left].value);
 	}
+
+	static Value Read(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(FileValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		auto ret = left.rawRead(new ubyte[](right));
+		return Value.String(cast(string) ret);
+	}
+
+	static Value ReadLine(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(FileValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		auto ret = left.readln();
+		return Value.String(ret);
+	}
+
+	// string ops
+	static Value AddString(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(StringValue) pleft).value;
+		auto right = (cast(StringValue) pright).value;
+
+		return Value.String(left ~ right);
+	}
+
+	static Value EqualsString(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(StringValue) pleft).value;
+		auto right = (cast(StringValue) pright).value;
+
+		return left == right? Value.Integer(-1) : Value.Integer(0);
+	}
+
+	static Value NotEqualsString(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(StringValue) pleft).value;
+		auto right = (cast(StringValue) pright).value;
+
+		return left == right? Value.Integer(0) : Value.Integer(-1);
+	}
 }

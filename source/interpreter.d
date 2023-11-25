@@ -37,10 +37,12 @@ struct Operator {
 		strict = true;
 	}
 
-	this(string pname, OperatorFunc pfunc) {
-		name   = pname;
-		func   = pfunc;
-		strict = false;
+	this(string pname, OperatorFunc pfunc, bool eLeft, bool eRight) {
+		name      = pname;
+		func      = pfunc;
+		evalLeft  = eLeft;
+		evalRight = eRight;
+		strict    = false;
 	}
 }
 
@@ -67,18 +69,23 @@ class Interpreter {
 		AddOp("/=", ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntNotEquals);
 		AddOp("/=", ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntNotEquals);
 		AddOp("?",  ValueType.Integer, ValueType.Lambda,  true, true,  &Operators.If);
+		AddOp(",",  ValueType.File,    ValueType.Integer, true, true,  &Operators.Read);
+		AddOp(",n", ValueType.File,    ValueType.Integer, true, true,  &Operators.ReadLine);
+		AddOp("+",  ValueType.String,  ValueType.String,  true, true,  &Operators.AddString);
+		AddOp("==", ValueType.String,  ValueType.String,  true, true,  &Operators.EqualsString);
+		AddOp("/=", ValueType.String,  ValueType.String,  true, true,  &Operators.NotEqualsString);
 
 		// not strict operators
-		AddOp(";", &Operators.Chain);
-		AddOp("=", &Operators.Assign);
+		AddOp(";", &Operators.Chain, true, true);
+		AddOp("=", &Operators.Assign, false, true);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, bool eLeft, bool eRight, OperatorFunc func) {
 		ops ~= Operator(name, left, right, eLeft, eRight, func);
 	}
 
-	void AddOp(string name, OperatorFunc func) {
-		ops ~= Operator(name, func);
+	void AddOp(string name, OperatorFunc func, bool eLeft, bool eRight) {
+		ops ~= Operator(name, func, eLeft, eRight);
 	}
 
 	void AssertVariable(string name, ErrorInfo info) {
