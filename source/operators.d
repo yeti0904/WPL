@@ -5,6 +5,12 @@ import std.stdio;
 import wpl.value;
 import wpl.interpreter;
 
+class OperatorException : Exception {
+	this(string msg, string file = __FILE__, size_t line = __LINE__) {
+		super(msg, file, line);
+	}
+}
+
 class Operators {
 	static Value AddInt(Value pleft, Value pright, Interpreter env) {
 		auto left  = (cast(IntegerValue) pleft).value;
@@ -78,6 +84,34 @@ class Operators {
 		return left == right? Value.Integer(0) : Value.Integer(-1);
 	}
 
+	static Value IntLess(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(IntegerValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		return left < right? Value.Integer(-1) : Value.Integer(0);
+	}
+
+	static Value IntLessE(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(IntegerValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		return left <= right? Value.Integer(-1) : Value.Integer(0);
+	}
+	
+	static Value IntGreater(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(IntegerValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		return left > right? Value.Integer(-1) : Value.Integer(0);
+	}
+
+	static Value IntGreaterE(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(IntegerValue) pleft).value;
+		auto right = (cast(IntegerValue) pright).value;
+
+		return left >= right? Value.Integer(-1) : Value.Integer(0);
+	}
+
 	static Value Chain(Value pleft, Value pright, Interpreter env) {
 		if (pright.type != ValueType.Unit) {
 			return pright;
@@ -141,5 +175,26 @@ class Operators {
 		auto right = (cast(StringValue) pright).value;
 
 		return left == right? Value.Integer(0) : Value.Integer(-1);
+	}
+
+	static Value While(Value pleft, Value pright, Interpreter env) {
+		auto left  = (cast(LambdaValue) pleft).value;
+		auto right = (cast(LambdaValue) pright).value;
+
+		auto res = env.Evaluate(left, true);
+		if (res.type != ValueType.Integer) {
+			throw new OperatorException("Condition didn't return integer");
+		}
+
+		while ((cast(IntegerValue) res).value) {
+			env.Evaluate(right, true);
+		
+			res = env.Evaluate(left, true);
+			if (res.type != ValueType.Integer) {
+				throw new OperatorException("Condition didn't return integer");
+			}
+		}
+
+		return Value.Unit();
 	}
 }

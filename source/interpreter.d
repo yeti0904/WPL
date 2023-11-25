@@ -63,6 +63,10 @@ class Interpreter {
 		AddOp("/",  ValueType.Integer, ValueType.Integer, true, true,  &Operators.DivInt);
 		AddOp("^",  ValueType.Integer, ValueType.Integer, true, true,  &Operators.PowInt);
 		AddOp("%",  ValueType.Integer, ValueType.Integer, true, true,  &Operators.ModInt);
+		AddOp("<",  ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntLess);
+		AddOp("<=", ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntLessE);
+		AddOp(">",  ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntGreater);
+		AddOp(">=", ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntGreaterE);
 		AddOp(".s", ValueType.File,    ValueType.String,  true, true,  &Operators.WriteString);
 		AddOp(".d", ValueType.File,    ValueType.Integer, true, true,  &Operators.WriteDecimal);
 		AddOp("==", ValueType.Integer, ValueType.Integer, true, true,  &Operators.IntEquals);
@@ -74,6 +78,7 @@ class Interpreter {
 		AddOp("+",  ValueType.String,  ValueType.String,  true, true,  &Operators.AddString);
 		AddOp("==", ValueType.String,  ValueType.String,  true, true,  &Operators.EqualsString);
 		AddOp("/=", ValueType.String,  ValueType.String,  true, true,  &Operators.NotEqualsString);
+		AddOp("@",  ValueType.Lambda,  ValueType.Lambda,  true, true,  &Operators.While);
 
 		// not strict operators
 		AddOp(";", &Operators.Chain, true, true);
@@ -134,11 +139,17 @@ class Interpreter {
 					if (iop.name == node.op) {
 						found = true;
 						op    = iop;
+						break;
 					}
 				}
 
-				auto left  = Evaluate(node.left, op.evalLeft);
-				auto right = Evaluate(node.right, op.evalRight);
+				Value left;
+				Value right;
+
+				if (!found) goto opNotFound;
+
+				left  = Evaluate(node.left, op.evalLeft);
+				right = Evaluate(node.right, op.evalRight);
 
 				if (op.strict) {
 					if (
@@ -149,6 +160,7 @@ class Interpreter {
 					}
 				}
 
+				opNotFound:
 				if (!found) {
 					ErrorBegin(node.info);
 					stderr.writefln(
