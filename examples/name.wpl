@@ -1,0 +1,8 @@
+(stdout .s "What is your name? ") ;
+(name = (stdin ,n 1024)) ;
+((name == "yeti\n") ? {
+	stdout .s "Cool name!!\n"
+}) ;
+((name /= "yeti\n") ? {
+	stdout .s "Rubbish name\n"
+})
