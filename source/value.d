@@ -12,7 +12,8 @@ enum ValueType {
 	File,
 	Lambda,
 	Variable,
-	Reference
+	Reference,
+	Array
 }
 
 class Value {
@@ -52,9 +53,15 @@ class Value {
 		return ret;
 	}
 
-	static ReferenceValue Reference(Value value) {
+	static ReferenceValue Reference(Value* value) {
 		auto ret  = new ReferenceValue();
 		ret.value = value;
+		return ret;
+	}
+
+	static ArrayValue Array(Value[] values) {
+		auto ret   = new ArrayValue();
+		ret.values = values;
 		return ret;
 	}
 }
@@ -126,7 +133,7 @@ class VariableValue : Value {
 }
 
 class ReferenceValue : Value {
-	Value value;
+	Value* value;
 
 	this() {
 		type = ValueType.Reference;
@@ -134,5 +141,23 @@ class ReferenceValue : Value {
 
 	override string toString() {
 		return value.toString();
+	}
+}
+
+class ArrayValue : Value {
+	Value[] values;
+
+	this() {
+		type = ValueType.Array;
+	}
+
+	override string toString() {
+		string ret = "[";
+
+		foreach (ref val ; values) {
+			ret ~= format("%s ", val.toString());
+		}
+
+		return ret ~ ']';
 	}
 }

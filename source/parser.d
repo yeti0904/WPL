@@ -13,7 +13,8 @@ enum NodeType {
 	String,
 	Identifier,
 	Expression,
-	Lambda
+	Lambda,
+	Array
 }
 
 class Node {
@@ -24,8 +25,9 @@ class Node {
 class IntegerNode : Node {
 	long value;
 
-	this() {
+	this(ErrorInfo pinfo) {
 		type = NodeType.Integer;
+		info = pinfo;
 	}
 
 	override string toString() {
@@ -36,8 +38,9 @@ class IntegerNode : Node {
 class StringNode : Node {
 	string value;
 
-	this() {
+	this(ErrorInfo pinfo) {
 		type = NodeType.String;
+		info = pinfo;
 	}
 
 	override string toString() {
@@ -48,8 +51,9 @@ class StringNode : Node {
 class IdentifierNode : Node {
 	string name;
 
-	this() {
+	this(ErrorInfo pinfo) {
 		type = NodeType.Identifier;
+		info = pinfo;
 	}
 
 	override string toString() {
@@ -62,8 +66,9 @@ class ExpressionNode : Node {
 	string op;
 	Node   right;
 
-	this() {
+	this(ErrorInfo pinfo) {
 		type = NodeType.Expression;
+		info = pinfo;
 	}
 
 	override string toString() {
@@ -74,12 +79,32 @@ class ExpressionNode : Node {
 class LambdaNode : Node {
 	Node expr;
 
-	this() {
+	this(ErrorInfo pinfo) {
 		type = NodeType.Lambda;
+		info = pinfo;
 	}
 
 	override string toString() {
 		return format("{%s}", expr);
+	}
+}
+
+class ArrayNode : Node {
+	Node[] values;
+
+	this(ErrorInfo pinfo) {
+		type = NodeType.Array;
+		info = pinfo;
+	}
+
+	override string toString() {
+		string ret = "[";
+
+		foreach (ref val ; values) {
+			ret ~= format("%s ", val);
+		}
+
+		return ret ~ ']';
 	}
 }
 
@@ -113,6 +138,10 @@ class Parser {
 		}
 	}
 
+	ErrorInfo GetInfo() {
+		return tokens[i].info;
+	}
+
 	Node ParseAtom() {
 		switch (tokens[i].type) {
 			case TokenType.LParen: {
@@ -125,27 +154,37 @@ class Parser {
 			case TokenType.LCurly: {
 				Next();
 				auto expr = ParseOperator();
-				auto ret  = new LambdaNode();
+				auto ret  = new LambdaNode(GetInfo());
 				ret.expr  = expr;
 				Expect(TokenType.RCurly);
 				++ i;
 				return ret;
 			}
+			case TokenType.LSquare: {
+				Next();
+				auto ret = new ArrayNode(GetInfo());
+
+				while (tokens[i].type != TokenType.RSquare) {
+					ret.values ~= ParseAtom();
+				}
+				Next();
+				return ret;
+			}
 			case TokenType.Integer: {
-				auto ret  = new IntegerNode();
+				auto ret  = new IntegerNode(GetInfo());
 				//writefln("Parsing %s", tokens[i].contents);
 				ret.value = parse!long(tokens[i].contents);
 				++ i;
 				return ret;
 			}
 			case TokenType.String: {
-				auto ret  = new StringNode();
+				auto ret  = new StringNode(GetInfo());
 				ret.value = tokens[i].contents;
 				++ i;
 				return ret;
 			}
 			case TokenType.Identifier: {
-				auto ret  = new IdentifierNode();
+				auto ret  = new IdentifierNode(GetInfo());
 				ret.name = tokens[i].contents;
 				++ i;
 				return ret;
@@ -162,7 +201,7 @@ class Parser {
 		auto left = ParseAtom();
 
 		while (tokens[i].type == TokenType.Operator) {
-			auto expr = new ExpressionNode();
+			auto expr = new ExpressionNode(GetInfo());
 			expr.left = left;
 			expr.op   = tokens[i].contents;
 			Next();

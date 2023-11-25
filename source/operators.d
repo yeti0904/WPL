@@ -136,7 +136,7 @@ class Operators {
 		auto left = (cast(VariableValue) pleft).value;
 
 		env.variables[left] = Variable(pright, 0);
-		return Value.Reference(env.variables[left].value);
+		return Value.Reference(&env.variables[left].value);
 	}
 
 	static Value Read(Value pleft, Value pright, Interpreter env) {
@@ -196,5 +196,44 @@ class Operators {
 		}
 
 		return Value.Unit();
+	}
+
+	// array ops
+	static Value AddArray(Value pleft, Value pright, Interpreter env) {
+		auto left = cast(ArrayValue) pleft;
+
+		left.values ~= pright;
+		return left;
+	}
+
+	static Value ArrayIndex(Value pleft, Value pright, Interpreter env) {
+		auto left  = cast(ArrayValue) pleft;
+		auto right = (cast(IntegerValue) pright).value;
+
+		if ((right >= left.values.length) || (right < 0)) {
+			throw new OperatorException("Array index out of bounds");
+		}
+
+		return Value.Reference(&left.values[right]);
+	}
+
+	static Value ArrayLength(Value pleft, Value pright, Interpreter env) {
+		auto left  = cast(ArrayValue) pleft;
+		auto right = (cast(IntegerValue) pright).value;
+
+		return Value.Integer(left.values.length - right);
+	}
+
+	static Value RefAssign(Value pleft, Value pright, Interpreter env) {
+		auto left = cast(ReferenceValue) pleft;
+
+		return (*left.value) = pright;
+	}
+
+	static Value DeRef(Value pleft, Value pright, Interpreter env) {
+		auto left = cast(ReferenceValue) pleft;
+
+		if (left.value is null) return pright;
+		else                    return *left.value;
 	}
 }

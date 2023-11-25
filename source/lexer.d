@@ -13,6 +13,8 @@ enum TokenType {
 	RParen,
 	LCurly,
 	RCurly,
+	LSquare,
+	RSquare,
 	Operator,
 	Integer,
 	String,
@@ -140,6 +142,16 @@ class Lexer {
 					case '}': {
 						AddReading();
 						AddToken(TokenType.RCurly);
+						break;
+					}
+					case '[': {
+						AddReading();
+						AddToken(TokenType.LSquare);
+						break;
+					}
+					case ']': {
+						AddReading();
+						AddToken(TokenType.RSquare);
 						break;
 					}
 					case '#': {

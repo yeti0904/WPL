@@ -1,0 +1,9 @@
+(myArray = [1 2 3 4]) ;
+(myArray + 5) ;
+(length = (myArray - 0)) ;
+(i = 0) ;
+({i < length} @ {
+	(stdout .d ((myArray : i) : 0)) ;
+	(stdout .s "\n") ;
+	(i = (i + 1))
+})
