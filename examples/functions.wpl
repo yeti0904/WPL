@@ -1,0 +1,5 @@
+(add = ([a b] => {
+	a + b
+})) ;
+(stdout .d (add ! [2 3])) ;
+(stdout .s "\n")

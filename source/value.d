@@ -13,7 +13,8 @@ enum ValueType {
 	Lambda,
 	Variable,
 	Reference,
-	Array
+	Array,
+	Function
 }
 
 class Value {
@@ -159,5 +160,25 @@ class ArrayValue : Value {
 		}
 
 		return ret ~ ']';
+	}
+}
+
+class FunctionValue : Value {
+	Node     value;
+	string[] params;
+
+	this() {
+		type = ValueType.Function;
+	}
+
+	override string toString() {
+		string ret = "([";
+
+		foreach (ref param ; params) {
+			ret ~= format("%s ", param);
+		}
+
+		ret ~= format("] => (%s))", value);
+		return ret;
 	}
 }

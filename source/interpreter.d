@@ -49,6 +49,7 @@ class Interpreter {
 	Variable[string] variables;
 	Operator[]       ops;
 	OpMeta[string]   opMeta;
+	uint             topScope;
 
 	this() {
 		// default variables
@@ -93,11 +94,16 @@ class Interpreter {
 		AddOp(":",  ValueType.Reference, ValueType.String,  &Operators.DeRef);
 		AddOp(":",  ValueType.Reference, ValueType.Lambda,  &Operators.DeRef);
 		AddOp(":",  ValueType.Reference, ValueType.Array,   &Operators.DeRef);
+		AddOp("=>", ValueType.Array,     ValueType.Lambda,  &Operators.Function);
+		AddOp("!",  ValueType.Function,  ValueType.Array,   &Operators.Call);
 
 		// not strict operators
 		AddOp(";", &Operators.Chain);
 		AddOp("=", &Operators.Assign);
+
+		// op meta
 		SetOpMeta("=", false, true);
+		SetOpMeta("=>", false, true);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -155,7 +161,7 @@ class Interpreter {
 				auto ret  = Value.Array([]);
 
 				foreach (ref node2 ; node.values) {
-					ret.values ~= Evaluate(node2, true);
+					ret.values ~= Evaluate(node2, evalVariables);
 				}
 
 				return ret;
