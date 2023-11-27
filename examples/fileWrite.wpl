@@ -1,0 +1,6 @@
+(stdout .s "What file do you want to write hello world to? ") ;
+(path = (stdin ,n 1024)) ;
+(file = (open ! [path "w"])) ;
+(file .s "Hello, world!\n") ;
+(flush ! [file]) ;
+(stdout .s ("Written hello world to " + path + "\n"))

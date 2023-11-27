@@ -5,6 +5,7 @@ import core.stdc.stdlib;
 import wpl.error;
 import wpl.value;
 import wpl.parser;
+import wpl.builtins;
 import wpl.operators.io;
 import wpl.operators.array;
 import wpl.operators.logic;
@@ -119,6 +120,12 @@ class Interpreter {
 		// op meta
 		SetOpMeta("=", false, true);
 		SetOpMeta("=>", false, true);
+
+		// builtin functions
+		AddFunction("time",  &Time,  0);
+		AddFunction("open",  &Open,  2);
+		AddFunction("flush", &Flush, 1);
+		AddFunction("close", &Close, 1);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -133,6 +140,14 @@ class Interpreter {
 
 	void SetOpMeta(string name, bool left, bool right) {
 		opMeta[name] = OpMeta(left, right);
+	}
+
+	void AddFunction(string name, BuiltInFunc func, size_t argsLen) {
+		auto value          = new FunctionValue();
+		value.builtIn       = true;
+		value.func          = func;
+		value.params.length = argsLen;
+		variables[name]     = Variable.Global(value);
 	}
 
 	void AssertVariable(string name, ErrorInfo info) {

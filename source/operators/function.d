@@ -38,20 +38,28 @@ static Value Call(Value pleft, Value pright, Interpreter env) {
 		env.variables[left.params[i]] = Variable(param, env.topScope);
 	}
 
-	auto ret = env.Evaluate(left.value, true);
+	Value ret;
 
-	-- env.topScope;
-	bool scopeCleared = true;
-	do {
-		scopeCleared = true;
-		foreach (key, ref value ; env.variables) {
-			if (value.scopeIn > env.topScope) {
-				env.variables.remove(key);
-				scopeCleared = false;
-				break;
+	if (left.builtIn) {
+		ret = left.func(right.values, env);
+		-- env.topScope;
+	}
+	else {
+		ret = env.Evaluate(left.value, true);
+
+		-- env.topScope;
+		bool scopeCleared = true;
+		do {
+			scopeCleared = true;
+			foreach (key, ref value ; env.variables) {
+				if (value.scopeIn > env.topScope) {
+					env.variables.remove(key);
+					scopeCleared = false;
+					break;
+				}
 			}
-		}
-	} while (!scopeCleared);
+		} while (!scopeCleared);
+	}
 
 	return ret;
 }

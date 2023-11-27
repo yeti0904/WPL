@@ -4,6 +4,7 @@ import std.conv;
 import std.stdio;
 import std.format;
 import wpl.parser;
+import wpl.interpreter;
 
 enum ValueType {
 	Unit,
@@ -163,9 +164,13 @@ class ArrayValue : Value {
 	}
 }
 
+alias BuiltInFunc = Value function(Value[], Interpreter);
+
 class FunctionValue : Value {
-	Node     value;
-	string[] params;
+	bool        builtIn;
+	Node        value;
+	string[]    params;
+	BuiltInFunc func;
 
 	this() {
 		type = ValueType.Function;
