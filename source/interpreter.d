@@ -96,6 +96,8 @@ class Interpreter {
 		AddOp(":",  ValueType.Reference, ValueType.Array,   &Operators.DeRef);
 		AddOp("=>", ValueType.Array,     ValueType.Lambda,  &Operators.Function);
 		AddOp("!",  ValueType.Function,  ValueType.Array,   &Operators.Call);
+		AddOp("&&", ValueType.Lambda,    ValueType.Lambda,  &Operators.BoolAnd);
+		AddOp("||", ValueType.Lambda,    ValueType.Lambda,  &Operators.BoolOr);
 
 		// not strict operators
 		AddOp(";", &Operators.Chain);
@@ -212,7 +214,19 @@ class Interpreter {
 					exit(1);
 				}
 
-				return op.func(left, right, this);
+				Value ret;
+				
+				try {
+					ret = op.func(left, right, this);
+				}
+				catch (OperatorException e) {
+					ErrorBegin(node.info);
+					stderr.writef("(%s) ", node.op);
+					stderr.writeln(e.msg);
+					exit(1);
+				}
+
+				return ret;
 			}
 			default: assert(0);
 		}
