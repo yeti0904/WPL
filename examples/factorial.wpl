@@ -1,0 +1,11 @@
+(factorial = ([n] => {
+	(ret = 1) ;
+	(i = 1) ;
+	({i <= n} @ {
+		(ret = (ret * i)) ;
+		(i = (i + 1))
+	}) ;
+	ret
+})) ;
+(stdout .d (factorial ! [5])) ;
+(stdout .s "\n")

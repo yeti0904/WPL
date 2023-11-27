@@ -5,7 +5,14 @@ import core.stdc.stdlib;
 import wpl.error;
 import wpl.value;
 import wpl.parser;
-import wpl.operators;
+import wpl.operators.io;
+import wpl.operators.array;
+import wpl.operators.logic;
+import wpl.operators.strings;
+import wpl.operators.integer;
+import wpl.operators.functions;
+import wpl.operators.variables;
+import wpl.operators.imperative;
 
 struct Variable {
 	Value value;
@@ -17,6 +24,12 @@ struct Variable {
 }
 
 alias OperatorFunc = Value function(Value, Value, Interpreter);
+
+class OperatorException : Exception {
+	this(string msg, string file = __FILE__, size_t line = __LINE__) {
+		super(msg, file, line);
+	}
+}
 
 struct Operator {
 	string       name;
@@ -58,50 +71,50 @@ class Interpreter {
 		variables["stdin"]  = Variable.Global(Value.File(stdin));
 
 		// strict operators
-		AddOp("+",  ValueType.Integer,   ValueType.Integer, &Operators.AddInt);
-		AddOp("-",  ValueType.Integer,   ValueType.Integer, &Operators.SubInt);
-		AddOp("*",  ValueType.Integer,   ValueType.Integer, &Operators.MulInt);
-		AddOp("/",  ValueType.Integer,   ValueType.Integer, &Operators.DivInt);
-		AddOp("^",  ValueType.Integer,   ValueType.Integer, &Operators.PowInt);
-		AddOp("%",  ValueType.Integer,   ValueType.Integer, &Operators.ModInt);
-		AddOp("<",  ValueType.Integer,   ValueType.Integer, &Operators.IntLess);
-		AddOp("<=", ValueType.Integer,   ValueType.Integer, &Operators.IntLessE);
-		AddOp(">",  ValueType.Integer,   ValueType.Integer, &Operators.IntGreater);
-		AddOp(">=", ValueType.Integer,   ValueType.Integer, &Operators.IntGreaterE);
-		AddOp(".s", ValueType.File,      ValueType.String,  &Operators.WriteString);
-		AddOp(".d", ValueType.File,      ValueType.Integer, &Operators.WriteDecimal);
-		AddOp("==", ValueType.Integer,   ValueType.Integer, &Operators.IntEquals);
-		AddOp("/=", ValueType.Integer,   ValueType.Integer, &Operators.IntNotEquals);
-		AddOp("/=", ValueType.Integer,   ValueType.Integer, &Operators.IntNotEquals);
-		AddOp("?",  ValueType.Integer,   ValueType.Lambda,  &Operators.If);
-		AddOp(",",  ValueType.File,      ValueType.Integer, &Operators.Read);
-		AddOp(",n", ValueType.File,      ValueType.Integer, &Operators.ReadLine);
-		AddOp("+",  ValueType.String,    ValueType.String,  &Operators.AddString);
-		AddOp("==", ValueType.String,    ValueType.String,  &Operators.EqualsString);
-		AddOp("/=", ValueType.String,    ValueType.String,  &Operators.NotEqualsString);
-		AddOp("@",  ValueType.Lambda,    ValueType.Lambda,  &Operators.While);
-		AddOp("+",  ValueType.Array,     ValueType.Integer, &Operators.AddArray);
-		AddOp("+",  ValueType.Array,     ValueType.String,  &Operators.AddArray);
-		AddOp("+",  ValueType.Array,     ValueType.Lambda,  &Operators.AddArray);
-		AddOp("+",  ValueType.Array,     ValueType.Array,   &Operators.AddArray);
-		AddOp(":",  ValueType.Array,     ValueType.Integer, &Operators.ArrayIndex);
-		AddOp("-",  ValueType.Array,     ValueType.Integer, &Operators.ArrayLength);
-		AddOp(":=", ValueType.Reference, ValueType.Integer, &Operators.RefAssign);
-		AddOp(":=", ValueType.Reference, ValueType.String,  &Operators.RefAssign);
-		AddOp(":=", ValueType.Reference, ValueType.Lambda,  &Operators.RefAssign);
-		AddOp(":=", ValueType.Reference, ValueType.Array,   &Operators.RefAssign);
-		AddOp(":",  ValueType.Reference, ValueType.Integer, &Operators.DeRef);
-		AddOp(":",  ValueType.Reference, ValueType.String,  &Operators.DeRef);
-		AddOp(":",  ValueType.Reference, ValueType.Lambda,  &Operators.DeRef);
-		AddOp(":",  ValueType.Reference, ValueType.Array,   &Operators.DeRef);
-		AddOp("=>", ValueType.Array,     ValueType.Lambda,  &Operators.Function);
-		AddOp("!",  ValueType.Function,  ValueType.Array,   &Operators.Call);
-		AddOp("&&", ValueType.Lambda,    ValueType.Lambda,  &Operators.BoolAnd);
-		AddOp("||", ValueType.Lambda,    ValueType.Lambda,  &Operators.BoolOr);
+		AddOp("+",  ValueType.Integer,   ValueType.Integer, &AddInt);
+		AddOp("-",  ValueType.Integer,   ValueType.Integer, &SubInt);
+		AddOp("*",  ValueType.Integer,   ValueType.Integer, &MulInt);
+		AddOp("/",  ValueType.Integer,   ValueType.Integer, &DivInt);
+		AddOp("^",  ValueType.Integer,   ValueType.Integer, &PowInt);
+		AddOp("%",  ValueType.Integer,   ValueType.Integer, &ModInt);
+		AddOp("<",  ValueType.Integer,   ValueType.Integer, &IntLess);
+		AddOp("<=", ValueType.Integer,   ValueType.Integer, &IntLessE);
+		AddOp(">",  ValueType.Integer,   ValueType.Integer, &IntGreater);
+		AddOp(">=", ValueType.Integer,   ValueType.Integer, &IntGreaterE);
+		AddOp(".s", ValueType.File,      ValueType.String,  &WriteString);
+		AddOp(".d", ValueType.File,      ValueType.Integer, &WriteDecimal);
+		AddOp("==", ValueType.Integer,   ValueType.Integer, &IntEquals);
+		AddOp("/=", ValueType.Integer,   ValueType.Integer, &IntNotEquals);
+		AddOp("/=", ValueType.Integer,   ValueType.Integer, &IntNotEquals);
+		AddOp("?",  ValueType.Integer,   ValueType.Lambda,  &If);
+		AddOp(",",  ValueType.File,      ValueType.Integer, &Read);
+		AddOp(",n", ValueType.File,      ValueType.Integer, &ReadLine);
+		AddOp("+",  ValueType.String,    ValueType.String,  &AddString);
+		AddOp("==", ValueType.String,    ValueType.String,  &EqualsString);
+		AddOp("/=", ValueType.String,    ValueType.String,  &NotEqualsString);
+		AddOp("@",  ValueType.Lambda,    ValueType.Lambda,  &While);
+		AddOp("+",  ValueType.Array,     ValueType.Integer, &AddArray);
+		AddOp("+",  ValueType.Array,     ValueType.String,  &AddArray);
+		AddOp("+",  ValueType.Array,     ValueType.Lambda,  &AddArray);
+		AddOp("+",  ValueType.Array,     ValueType.Array,   &AddArray);
+		AddOp(":",  ValueType.Array,     ValueType.Integer, &ArrayIndex);
+		AddOp("-",  ValueType.Array,     ValueType.Integer, &ArrayLength);
+		AddOp(":=", ValueType.Reference, ValueType.Integer, &RefAssign);
+		AddOp(":=", ValueType.Reference, ValueType.String,  &RefAssign);
+		AddOp(":=", ValueType.Reference, ValueType.Lambda,  &RefAssign);
+		AddOp(":=", ValueType.Reference, ValueType.Array,   &RefAssign);
+		AddOp(":",  ValueType.Reference, ValueType.Integer, &DeRef);
+		AddOp(":",  ValueType.Reference, ValueType.String,  &DeRef);
+		AddOp(":",  ValueType.Reference, ValueType.Lambda,  &DeRef);
+		AddOp(":",  ValueType.Reference, ValueType.Array,   &DeRef);
+		AddOp("=>", ValueType.Array,     ValueType.Lambda,  &Function);
+		AddOp("!",  ValueType.Function,  ValueType.Array,   &Call);
+		AddOp("&&", ValueType.Lambda,    ValueType.Lambda,  &BoolAnd);
+		AddOp("||", ValueType.Lambda,    ValueType.Lambda,  &BoolOr);
 
 		// not strict operators
-		AddOp(";", &Operators.Chain);
-		AddOp("=", &Operators.Assign);
+		AddOp(";", &Chain);
+		AddOp("=", &Assign);
 
 		// op meta
 		SetOpMeta("=", false, true);
