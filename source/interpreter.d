@@ -17,11 +17,6 @@ import wpl.operators.imperative;
 
 struct Variable {
 	Value value;
-	uint  scopeIn; // what scope layer the variable was created in (0 = global layer)
-
-	static Variable Global(Value value) {
-		return Variable(value, 0);
-	}
 }
 
 alias OperatorFunc = Value function(Value, Value, Interpreter);
@@ -60,16 +55,18 @@ struct OpMeta {
 }
 
 class Interpreter {
-	Variable[string] variables;
-	Operator[]       ops;
-	OpMeta[string]   opMeta;
-	uint             topScope;
+	Variable[string][] scopes;
+	Operator[]         ops;
+	OpMeta[string]     opMeta;
 
 	this() {
+		// create global scope
+		AddScope();
+	
 		// default variables
-		variables["stdout"] = Variable.Global(Value.File(stdout));
-		variables["stderr"] = Variable.Global(Value.File(stderr));
-		variables["stdin"]  = Variable.Global(Value.File(stdin));
+		SetVariable("stdout", Variable(Value.File(stdout)));
+		SetVariable("stderr", Variable(Value.File(stderr)));
+		SetVariable("stdin",  Variable(Value.File(stdin)));
 
 		// strict operators
 		AddOp("+",  ValueType.Integer,   ValueType.Integer, &AddInt);
@@ -147,11 +144,55 @@ class Interpreter {
 		value.builtIn       = true;
 		value.func          = func;
 		value.params.length = argsLen;
-		variables[name]     = Variable.Global(value);
+		SetVariable(name, Variable(value));
+	}
+
+	bool VariableExists(string name) {
+		return (name in scopes[0]) || (name in scopes[$ - 1]);
+	}
+
+	Variable GetVariable(string name) {
+		if (name in scopes[$ - 1]) return scopes[$ - 1][name];
+		return scopes[0][name];
+	}
+
+	Value* GetVariableRef(string name) {
+		if (name in scopes[$ - 1]) return &scopes[$ - 1][name].value;
+		return &scopes[0][name].value;
+	}
+
+	void SetVariable(string name) {
+		if (name in scopes[0]) {
+			scopes[0][name] = Variable(Value.Unit());
+		}
+		else {
+			scopes[$ - 1][name] = Variable(Value.Unit());
+		}
+	}
+
+	void SetVariable(string name, Variable value) {
+		if (name in scopes[0]) {
+			scopes[0][name] = value;
+		}
+		else {
+			scopes[$ - 1][name] = value;
+		}
+	}
+
+	void SetLocal(string name, Variable value) {
+		scopes[$ - 1][name] = value;
+	}
+
+	void AddScope() {
+		scopes ~= new Variable[string];
+	}
+
+	void RemoveScope() {
+		scopes = scopes[0 .. $ - 1];
 	}
 
 	void AssertVariable(string name, ErrorInfo info) {
-		if (name !in variables) {
+		if (!VariableExists(name)) {
 			ErrorBegin(info);
 			stderr.writefln("No such variable: %s", name);
 			exit(1);
@@ -175,7 +216,7 @@ class Interpreter {
 
 				if (evalVariables) {
 					AssertVariable(node.name, node.info);
-					return variables[node.name].value;
+					return GetVariable(node.name).value;
 				}
 				else {
 					return Value.Variable(node.name);

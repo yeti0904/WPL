@@ -60,7 +60,15 @@ int main(string[] args) {
 	}
 	else {
 		lexer.file = inFile;
-		lexer.code = readText(inFile);
+		
+		try {
+			lexer.code = readText(inFile);
+		}
+		catch (FileException e) {
+			stderr.writefln("Error: %s", e);
+			return 1;
+		}
+
 		lexer.Lex();
 
 		if (lexer.tokens[0].type == TokenType.End) {

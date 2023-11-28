@@ -24,9 +24,6 @@ static Value Call(Value pleft, Value pright, Interpreter env) {
 	auto left  = cast(FunctionValue) pleft;
 	auto right = cast(ArrayValue) pright;
 
-	// move into a new scope Lets Fucking Go
-	++ env.topScope;
-
 	if (right.values.length != left.params.length) {
 		throw new OperatorException(format(
 			"Expected %d parameters, got %d", right.values.length,
@@ -34,31 +31,20 @@ static Value Call(Value pleft, Value pright, Interpreter env) {
 		));
 	}
 
-	foreach (i, ref param ; right.values) {
-		env.variables[left.params[i]] = Variable(param, env.topScope);
-	}
-
 	Value ret;
 
 	if (left.builtIn) {
 		ret = left.func(right.values, env);
-		-- env.topScope;
 	}
 	else {
+		env.AddScope();
+		foreach (i, ref param ; right.values) {
+			// env.variables[left.params[i]] = Variable(param, env.topScope);
+			env.SetLocal(left.params[i], Variable(param));
+		}
+		
 		ret = env.Evaluate(left.value, true);
-
-		-- env.topScope;
-		bool scopeCleared = true;
-		do {
-			scopeCleared = true;
-			foreach (key, ref value ; env.variables) {
-				if (value.scopeIn > env.topScope) {
-					env.variables.remove(key);
-					scopeCleared = false;
-					break;
-				}
-			}
-		} while (!scopeCleared);
+		env.RemoveScope();
 	}
 
 	return ret;

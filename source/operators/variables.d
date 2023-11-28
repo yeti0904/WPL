@@ -12,8 +12,9 @@ static Value Assign(Value pleft, Value pright, Interpreter env) {
 	}
 	auto left = (cast(VariableValue) pleft).value;
 
-	env.variables[left] = Variable(pright, 0);
-	return Value.Reference(&env.variables[left].value);
+	// env.variables[left] = Variable(pright, 0);
+	env.SetVariable(left, Variable(pright));
+	return Value.Reference(env.GetVariableRef(left));
 }
 
 static Value RefAssign(Value pleft, Value pright, Interpreter env) {
