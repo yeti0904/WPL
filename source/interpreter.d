@@ -126,6 +126,9 @@ class Interpreter {
 		AddFunction("close",   &Close,   1);
 		AddFunction("mkdir",   &Mkdir,   1);
 		AddFunction("fexists", &FExists, 1);
+		AddFunction("alloc",   &Alloc,   1);
+		AddFunction("realloc", &Realloc, 2);
+		AddFunction("free",    &Free,    1);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {

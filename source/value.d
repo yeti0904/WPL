@@ -15,7 +15,8 @@ enum ValueType {
 	Variable,
 	Reference,
 	Array,
-	Function
+	Function,
+	Pointer
 }
 
 class Value {
@@ -185,5 +186,25 @@ class FunctionValue : Value {
 
 		ret ~= format("] => (%s))", value);
 		return ret;
+	}
+}
+
+class PointerValue : Value {
+	void* value;
+
+	this() {
+		type = ValueType.Pointer;
+	}
+
+	override string toString() {
+		return format("%.8X", cast(ulong) value);
+	}
+
+	T Read(T)() {
+		return *(cast(T*) ptr);
+	}
+
+	void Write(T)(T data) {
+		*(cast(T*) ptr) = data;
 	}
 }
