@@ -6,6 +6,7 @@ import std.format;
 import core.stdc.stdlib;
 import wpl.error;
 import wpl.lexer;
+import wpl.exception;
 
 enum NodeType {
 	Null,
@@ -126,7 +127,7 @@ class Parser {
 		if (i >= tokens.length) {
 			ErrorBegin(tokens[$ - 1].info);
 			stderr.writeln("Unexpected EOF");
-			exit(1);
+			Fatal();
 		}
 	}
 
@@ -134,7 +135,7 @@ class Parser {
 		if (tokens[i].type != type) {
 			ErrorBegin(tokens[i].info);
 			stderr.writefln("Expected %s, got %s\n", type, tokens[i].type);
-			exit(1);
+			Fatal();
 		}
 	}
 
@@ -192,9 +193,11 @@ class Parser {
 			default: {
 				ErrorBegin(tokens[i].info);
 				stderr.writefln("Unexpected %s", tokens[i].type);
-				exit(1);
+				Fatal();
 			}
 		}
+
+		assert(0);
 	}
 
 	Node ParseOperator() {

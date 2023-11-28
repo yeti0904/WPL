@@ -6,6 +6,7 @@ import wpl.error;
 import wpl.value;
 import wpl.parser;
 import wpl.builtins;
+import wpl.exception;
 import wpl.operators.io;
 import wpl.operators.array;
 import wpl.operators.logic;
@@ -197,7 +198,7 @@ class Interpreter {
 		if (!VariableExists(name)) {
 			ErrorBegin(info);
 			stderr.writefln("No such variable: %s", name);
-			exit(1);
+			Fatal();
 		}
 	}
 
@@ -282,7 +283,7 @@ class Interpreter {
 					stderr.writefln(
 						"No operator matches %s %s %s", left.type, node.op, right.type
 					);
-					exit(1);
+					Fatal();
 				}
 
 				Value ret;
@@ -294,7 +295,7 @@ class Interpreter {
 					ErrorBegin(node.info);
 					stderr.writef("(%s) ", node.op);
 					stderr.writeln(e.msg);
-					exit(1);
+					Fatal();
 				}
 
 				return ret;

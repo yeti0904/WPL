@@ -6,6 +6,7 @@ import std.algorithm;
 import core.stdc.stdlib;
 import wpl.error;
 import wpl.language;
+import wpl.exception;
 
 enum TokenType {
 	Null,
@@ -103,7 +104,7 @@ class Lexer {
 							default: {
 								ErrorBegin(GetInfo());
 								stderr.writefln("Unknown escape '%c'", code[i]);
-								exit(1);
+								Fatal();
 							}
 						}
 						break;

@@ -5,6 +5,7 @@ import std.stdio;
 import std.range;
 import wpl.lexer;
 import wpl.parser;
+import wpl.exception;
 import wpl.interpreter;
 
 int main(string[] args) {
@@ -55,7 +56,11 @@ int main(string[] args) {
 			parser.tokens = lexer.tokens;
 
 			auto program = parser.ParseOperator();
-			writeln(interpreter.Evaluate(program, true));
+
+			try {
+				writeln(interpreter.Evaluate(program, true));
+			}
+			catch (FatalException) {}
 		}
 	}
 	else {
@@ -77,7 +82,12 @@ int main(string[] args) {
 		
 		parser.tokens = lexer.tokens;
 
-		interpreter.Evaluate(parser.ParseOperator(), true);
+		try {
+			interpreter.Evaluate(parser.ParseOperator(), true);
+		}
+		catch (FatalException) {
+			return 1;
+		}
 	}
 
 	return 0;
