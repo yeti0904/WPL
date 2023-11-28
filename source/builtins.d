@@ -1,5 +1,6 @@
 module wpl.builtins;
 
+import std.file;
 import std.stdio;
 import std.format;
 import std.exception;
@@ -62,4 +63,27 @@ Value Close(Value[] args, Interpreter func) {
 	file.close();
 
 	return Value.Unit();
+}
+
+Value Mkdir(Value[] args, Interpreter func) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto path = (cast(StringValue) args[0]).value;
+
+	try {
+		mkdir(path);
+	}
+	catch (Exception e) {
+		throw new OperatorException(e.msg);
+	}
+
+	return Value.Unit();
+}
+
+Value FExists(Value[] args, Interpreter func) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto path = (cast(StringValue) args[0]).value;
+
+	return exists(path)? Value.Integer(-1) : Value.Integer(0);
 }

@@ -119,10 +119,12 @@ class Interpreter {
 		SetOpMeta("=>", false, true);
 
 		// builtin functions
-		AddFunction("time",  &Time,  0);
-		AddFunction("open",  &Open,  2);
-		AddFunction("flush", &Flush, 1);
-		AddFunction("close", &Close, 1);
+		AddFunction("time",    &Time,    0);
+		AddFunction("open",    &Open,    2);
+		AddFunction("flush",   &Flush,   1);
+		AddFunction("close",   &Close,   1);
+		AddFunction("mkdir",   &Mkdir,   1);
+		AddFunction("fexists", &FExists, 1);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
