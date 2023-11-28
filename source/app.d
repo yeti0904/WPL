@@ -65,7 +65,7 @@ int main(string[] args) {
 			lexer.code = readText(inFile);
 		}
 		catch (FileException e) {
-			stderr.writefln("Error: %s", e);
+			stderr.writefln("Error: %s", e.msg);
 			return 1;
 		}
 
