@@ -1,0 +1,6 @@
+(myInt = (alloc ! [4])) ;  # allocate memory
+(myInt = (myInt &$ i32)) ; # set pointer type
+(myInt &. 69420) ;         # write value
+(stdout .d (myInt &, 0)) ; # read pointer (0 is the default value if it's null)
+(stdout .s "\n") ;
+(free ! [myInt])           # frees the memory

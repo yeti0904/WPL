@@ -19,6 +19,17 @@ enum ValueType {
 	Pointer
 }
 
+enum LLType { // Low Level Type
+	U8,
+	U16,
+	U32,
+	U64,
+	I8,
+	I16,
+	I32,
+	I64
+}
+
 class Value {
 	ValueType type;
 
@@ -190,7 +201,8 @@ class FunctionValue : Value {
 }
 
 class PointerValue : Value {
-	void* value;
+	void*  value;
+	LLType ptype;
 
 	this() {
 		type = ValueType.Pointer;
@@ -201,10 +213,10 @@ class PointerValue : Value {
 	}
 
 	T Read(T)() {
-		return *(cast(T*) ptr);
+		return *(cast(T*) value);
 	}
 
 	void Write(T)(T data) {
-		*(cast(T*) ptr) = data;
+		*(cast(T*) value) = data;
 	}
 }
