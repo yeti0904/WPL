@@ -1,12 +1,15 @@
 module wpl.builtins;
 
 import std.file;
+import std.path;
 import std.stdio;
 import std.format;
 import std.exception;
 import std.datetime;
 import core.memory;
+import wpl.lexer;
 import wpl.value;
+import wpl.parser;
 import wpl.interpreter;
 
 private void AssertArgs(Value[] args, ValueType[] expected) {
@@ -123,5 +126,52 @@ Value Free(Value[] args, Interpreter env) {
 
 	auto ptr = (cast(PointerValue) args[0]).value;
 	pureFree(ptr);
+	return Value.Unit();
+}
+
+Value Import(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto path   = (cast(StringValue) args[0]).value;
+	auto lexer  = new Lexer();
+	auto parser = new Parser();
+
+	path = dirName(env.thisFile[$ - 1]) ~ '/' ~ path;
+
+	env.thisFile ~= path;
+	lexer.file    = path;
+	
+	try {
+		lexer.code = readText(path);
+	}
+	catch (FileException e) {
+		throw new OperatorException(e.msg);
+	}
+
+	lexer.Lex();
+
+	if (lexer.tokens[0].type == TokenType.End) {
+		return Value.Unit();
+	}
+	
+	parser.tokens = lexer.tokens;
+
+	env.AddScope();
+	auto ret = env.Evaluate(parser.ParseOperator(), true);
+	env.RemoveScope();
+	env.thisFile = env.thisFile[0 .. $ - 1];
+	return ret;
+}
+
+Value Export(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto var = (cast(StringValue) args[0]).value;
+
+	if (!env.LocalExists(var)) {
+		throw new OperatorException(format("No such variable: '%s'", var));
+	}
+
+	env.scopes[0][var] = env.GetLocal(var);
 	return Value.Unit();
 }

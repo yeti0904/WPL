@@ -60,6 +60,7 @@ class Interpreter {
 	Variable[string][] scopes;
 	Operator[]         ops;
 	OpMeta[string]     opMeta;
+	string[]           thisFile;
 
 	this() {
 		// create global scope
@@ -136,6 +137,8 @@ class Interpreter {
 		AddFunction("alloc",   &Alloc,   1);
 		AddFunction("realloc", &Realloc, 2);
 		AddFunction("free",    &Free,    1);
+		AddFunction("import",  &Import,  1);
+		AddFunction("export",  &Export,  1);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -194,6 +197,14 @@ class Interpreter {
 
 	void SetLocal(string name, Variable value) {
 		scopes[$ - 1][name] = value;
+	}
+
+	bool LocalExists(string name) {
+		return name in scopes[$ - 1]? true : false;
+	}
+
+	Variable GetLocal(string name) {
+		return scopes[$ - 1][name];
 	}
 
 	void AddScope() {

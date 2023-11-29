@@ -41,7 +41,13 @@ int main(string[] args) {
 			parser.Reset();
 			
 			lexer.code = code;
-			lexer.Lex();
+
+			try {
+				lexer.Lex();
+			}
+			catch (FatalException) {
+				continue;
+			}
 
 			if (lexer.tokens[0].type == TokenType.End) {
 				continue;
@@ -55,16 +61,17 @@ int main(string[] args) {
 		
 			parser.tokens = lexer.tokens;
 
-			auto program = parser.ParseOperator();
 
 			try {
+				auto program = parser.ParseOperator();
 				writeln(interpreter.Evaluate(program, true));
 			}
 			catch (FatalException) {}
 		}
 	}
 	else {
-		lexer.file = inFile;
+		interpreter.thisFile ~= inFile;
+		lexer.file            = inFile;
 		
 		try {
 			lexer.code = readText(inFile);
@@ -74,7 +81,12 @@ int main(string[] args) {
 			return 1;
 		}
 
-		lexer.Lex();
+		try {
+			lexer.Lex();
+		}
+		catch (FatalException) {
+			return 1;
+		}
 
 		if (lexer.tokens[0].type == TokenType.End) {
 			return 0;
