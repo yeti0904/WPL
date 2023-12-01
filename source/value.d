@@ -16,7 +16,9 @@ enum ValueType {
 	Reference,
 	Array,
 	Function,
-	Pointer
+	Pointer,
+	Structure,
+	CharRef
 }
 
 enum LLType { // Low Level Type
@@ -218,5 +220,35 @@ class PointerValue : Value {
 
 	void Write(T)(T data) {
 		*(cast(T*) value) = data;
+	}
+}
+
+class Structure : Value {
+	Value[string] values;
+
+	this() {
+		type = ValueType.Structure;
+	}
+
+	override string toString() {
+		string ret = "(";
+
+		foreach (key, ref value ; values) {
+			ret ~= value.toString() ~ ' ';
+		}
+
+		return ret ~ ')';
+	}
+}
+
+class CharRefValue : Value {
+	char* value;
+
+	this() {
+		type = ValueType.CharRef;
+	}
+
+	override string toString() {
+		return format("%.8X (%c)", cast(ulong) value, *value);
 	}
 }

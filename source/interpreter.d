@@ -1,6 +1,7 @@
 module wpl.interpreter;
 
 import std.stdio;
+import std.algorithm;
 import core.stdc.stdlib;
 import wpl.error;
 import wpl.value;
@@ -117,6 +118,9 @@ class Interpreter {
 		AddOp("&,", ValueType.Pointer,   ValueType.Integer,  &PointerRead);
 		AddOp("+",  ValueType.Pointer,   ValueType.Integer,  &PointerAdd);
 		AddOp("-",  ValueType.Pointer,   ValueType.Integer,  &PointerSub);
+		AddOp(":",  ValueType.String,    ValueType.Integer,  &IndexString);
+		AddOp(":=", ValueType.CharRef,   ValueType.String,   &WriteChar);
+		AddOp(":",  ValueType.CharRef,   ValueType.String,   &DerefChar);
 
 		// not strict operators
 		AddOp(";", &Chain);
@@ -221,6 +225,14 @@ class Interpreter {
 			stderr.writefln("No such variable: %s", name);
 			Fatal();
 		}
+	}
+
+	bool IsType(string str) {
+		auto types = [
+			"unit", "int", "string", "file", "lambda", "ref", "array", "func", "ptr"
+		];
+
+		return types.canFind(str)? true : false;
 	}
 
 	Value Evaluate(Node pnode, bool evalVariables) {
