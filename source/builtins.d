@@ -175,3 +175,21 @@ Value Export(Value[] args, Interpreter env) {
 	env.scopes[0][var] = env.GetLocal(var);
 	return Value.Unit();
 }
+
+Value ReadFile(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto path = (cast(StringValue) args[0]).value;
+
+	string ret;
+	try {
+		ret = readText(path);
+	}
+	catch (Exception e) {
+		throw new OperatorException(e.msg);
+	}
+
+	auto retV  = new StringValue();
+	retV.value = ret;
+	return retV;
+}
