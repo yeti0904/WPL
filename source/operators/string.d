@@ -63,3 +63,11 @@ static Value DerefChar(Value pleft, Value pright, Interpreter env) {
 	ret.value = "" ~ *left;
 	return ret;
 }
+
+static Value StringLength(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(StringValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+	auto ret   = new IntegerValue();
+	ret.value  = left.length - right;
+	return ret;
+}

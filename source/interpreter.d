@@ -92,6 +92,7 @@ class Interpreter {
 		AddOp(",",  ValueType.File,      ValueType.Integer,  &Read);
 		AddOp(",n", ValueType.File,      ValueType.Integer,  &ReadLine);
 		AddOp("+",  ValueType.String,    ValueType.String,   &AddString);
+		AddOp("-",  ValueType.String,    ValueType.Integer,  &StringLength);
 		AddOp("==", ValueType.String,    ValueType.String,   &EqualsString);
 		AddOp("/=", ValueType.String,    ValueType.String,   &NotEqualsString);
 		AddOp("@",  ValueType.Lambda,    ValueType.Lambda,   &While);
