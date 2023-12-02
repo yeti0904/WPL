@@ -238,3 +238,22 @@ Value FTell(Value[] args, Interpreter env) {
 
 	return Value.Integer(cast(long) file.value.tell);
 }
+
+Value CharCode(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.String]);
+
+	auto ch = (cast(StringValue) args[0]).value;
+
+	if (ch.length != 1) {
+		throw new OperatorException("Parameter is not character");
+	}
+
+	return Value.Integer(cast(long) ch[0]);
+}
+
+Value AsChar(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.Integer]);
+
+	auto ch = (cast(IntegerValue) args[0]).value;
+	return Value.String("" ~ (cast(char) ch));
+}

@@ -144,6 +144,7 @@ class Interpreter {
 		AddOp(",b", ValueType.File,      ValueType.Integer,  &ReadByte);
 		AddOp("%",  ValueType.String,    ValueType.String,   &StringFormat);
 		AddOp("%",  ValueType.String,    ValueType.Integer,  &StringFormat);
+		AddOp("/",  ValueType.Array,     ValueType.Integer,  &ArrayRemove);
 
 		// not strict operators
 		AddOp(";", &Chain);
@@ -155,23 +156,24 @@ class Interpreter {
 		SetOpMeta("&$", true,  false);
 
 		// builtin functions
-		AddFunction("time",    &Time,     0);
-		AddFunction("open",    &Open,     2);
-		AddFunction("flush",   &Flush,    1);
-		AddFunction("close",   &Close,    1);
-		AddFunction("mkdir",   &Mkdir,    1);
-		AddFunction("fexists", &FExists,  1);
-		AddFunction("alloc",   &Alloc,    1);
-		AddFunction("realloc", &Realloc,  2);
-		AddFunction("free",    &Free,     1);
-		AddFunction("import",  &Import,   1);
-		AddFunction("export",  &Export,   1);
-		// AddFunction("readf",   &ReadFile, 1);
-		AddFunction("srand",   &SRand,    1);
-		AddFunction("rand",    &Rand,     0);
-		AddFunction("exit",    &Exit,     1);
-		AddFunction("fseek",   &FSeek,    3);
-		AddFunction("ftell",   &FTell,    1);
+		AddFunction("time",      &Time,     0);
+		AddFunction("open",      &Open,     2);
+		AddFunction("flush",     &Flush,    1);
+		AddFunction("close",     &Close,    1);
+		AddFunction("mkdir",     &Mkdir,    1);
+		AddFunction("fexists",   &FExists,  1);
+		AddFunction("alloc",     &Alloc,    1);
+		AddFunction("realloc",   &Realloc,  2);
+		AddFunction("free",      &Free,     1);
+		AddFunction("import",    &Import,   1);
+		AddFunction("export",    &Export,   1);
+		AddFunction("srand",     &SRand,    1);
+		AddFunction("rand",      &Rand,     0);
+		AddFunction("exit",      &Exit,     1);
+		AddFunction("fseek",     &FSeek,    3);
+		AddFunction("ftell",     &FTell,    1);
+		AddFunction("char_code", &CharCode, 1);
+		AddFunction("as_char",   &AsChar,   1);
 
 		// constnats
 		AddConstant("SEEK_SET", Value.Integer(SEEK_SET));

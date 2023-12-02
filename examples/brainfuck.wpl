@@ -1,0 +1,55 @@
+# Brainfuck interpreter
+
+# usage + cmd args
+(((argv - 0) == 1) ? {
+	(stdout .s "Usage:\n") ;
+	(stdout .s ("    " + ((argv : 0) : 0) + " [FILE]\n")) ;
+	(exit ! [0])
+}) ;
+(path = ((argv : 1) : 0)) ;
+(file = (open ! [path "rb"])) ;
+(fseek ! [file 0 SEEK_END]) ;
+(fileSize = (ftell ! [file])) ;
+(fseek ! [file 0 SEEK_SET]) ;
+
+# read file
+(program = (file , fileSize)) ;
+
+# execute the code
+(i = 0) ;
+(loops = []) ;
+(cells = (alloc ! [60000])) ; # create cells array
+(cells = (cells &$ i16)) ;    # set pointer to u16
+(ptr = cells) ;
+({i < (program - 0)} @ {
+	(ch = ((program : i) : "")) ;
+	((ch == "+") ? {ptr &. ((ptr &, 0) + 1)}) ;
+	((ch == "-") ? {ptr &. ((ptr &, 0) - 1)}) ;
+	((ch == ",") ? {ptr &. ((ptr &, 0) - 1)}) ;
+	((ch == ">") ? {ptr = (ptr + 1)}) ;
+	((ch == "<") ? {ptr = (ptr - 1)}) ;
+	((ch == ".") ? {stdout .s (as_char ! [(ptr &, 0)])}) ;
+	((ch == ",") ? {ptr &. (char_code ! [(stdin , 1)])}) ;
+	((ch == "[") ? {
+		(loops + i) ;
+		(((ptr &, 0) == 0) ? {
+			(loopLevel = 1) ;
+			({loopLevel /= 0} @ {
+				(ch = ((program : i) : "")) ;
+				((ch == "[") ? {loopLevel = (loopLevel + 1)}) ;
+				((ch == "]") ? {loopLevel = (loopLevel - 1)}) ;
+				(i = (i + 1))
+			})
+		})
+	}) ;
+	((ch == "]") ? {
+		(((ptr &, 0) == 0) ? {
+			(loops / (loops - 1))
+		}) ;
+		(((ptr &, 0) /= 0) ? {
+			(i = ((loops : (loops - 1)) : 0))
+		})
+	}) ;
+	(i = (i + 1))
+}) ;
+(free ! [cells])
