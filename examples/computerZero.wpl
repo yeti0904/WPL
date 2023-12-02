@@ -1,0 +1,63 @@
+# Computer/zero emulator
+# not tested
+# http://edmundgriffiths.com/czero.html
+# https://rosettacode.org/wiki/Execute_Computer/Zero
+
+(createArray = ([size] => {
+	(i = 0) ;
+	(ret = []) ;
+	({i < size} @ {
+		(ret + 0) ;
+		(i = (i + 1))
+	}) ;
+	ret
+})) ;
+
+(((argv - 0) == 1) ? {
+	(stdout .s "Usage:\n") ;
+	(stdout .s ("    " + ((argv : 0) : 0) + " [FILE]\n")) ;
+	(exit ! [0])
+}) ;
+(path = ((argv : 1) : 0)) ;
+(file = (open ! [path "rb"])) ;
+(fseek ! [file 0 SEEK_END]) ;
+(fileSize = (ftell ! [file])) ;
+(fseek ! [file 0 SEEK_SET]) ;
+
+# read file
+(program = []) ;
+(i = 0) ;
+({i < fileSize} @ {
+	(program + (file ,b 0)) ;
+	(i = (i + 1))
+}) ;
+
+# emulator starts here!!
+(memory = (alloc ! [32])) ;
+(memory = (memory &$ u8)) ; # make it a byte pointer
+(acc = 0) ; # accumulator
+(ip = 0) ; # instruction pointer
+(halted = 0) ;
+
+# load program
+(i = 0) ;
+({i < (program - 0)} @ {
+	((memory + i) &. ((program : i) : 0)) ;
+	(i = (i + 1))
+}) ;
+
+({halted} @ {
+	(op = ((memory + ip) &, 0)) ;
+	(inst = ((op & 224) >> 5)) ;
+	(operand = (op & 15)) ;
+	(inc = 1) ;
+	((inst == 0) ? {}) ; # NOP
+	((inst == 1) ? {acc = ((memory + operand) &, 0)}) ; # LDA
+	((inst == 2) ? {(memory + operand) &. acc}) ; # STA
+	((inst == 3) ? {acc = (acc + ((memory + operand) &, 0))}) ; # ADD
+	((inst == 4) ? {acc = (acc - ((memory + operand) &, 0))}) ; # SUB
+	((inst == 5) ? {(acc == 0) ? {(ip = operand) ; (inc = 0)}}) ; # BRZ
+	((inst == 6) ? {(ip = operand) ; (inc = 0)}) ; # JMP
+	((inst == 7) ? {(halted = 1) ; (stdout .d acc) ; (stdout .s "\n")}) ; # STP
+	(inc ? {ip = (ip + 1)})
+})

@@ -132,7 +132,12 @@ class LambdaValue : Value {
 	}
 
 	override string toString() {
-		return value.toString();
+		if (value is null) {
+			return "{(empty)}";
+		}
+		else {
+			return value.toString();
+		}
 	}
 }
 

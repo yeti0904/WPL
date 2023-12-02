@@ -12,6 +12,8 @@ import wpl.value;
 import wpl.parser;
 import wpl.interpreter;
 
+import core.stdc.stdlib : srand, rand, exit;
+
 private void AssertArgs(Value[] args, ValueType[] expected) {
 	if (args.length != expected.length) {
 		throw new OperatorException(format(
@@ -192,4 +194,47 @@ Value ReadFile(Value[] args, Interpreter env) {
 	auto retV  = new StringValue();
 	retV.value = ret;
 	return retV;
+}
+
+Value SRand(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.Integer]);
+
+	auto seed = (cast(IntegerValue) args[0]).value;
+
+	srand(cast(uint) seed);
+
+	return Value.Unit();
+}
+
+Value Rand(Value[] args, Interpreter env) {
+	AssertArgs(args, []);
+
+	return Value.Integer(rand());
+}
+
+Value Exit(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.Integer]);
+
+	auto code = (cast(IntegerValue) args[0]).value;
+
+	exit(0);
+}
+
+Value FSeek(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.File, ValueType.Integer, ValueType.Integer]);
+
+	auto file   = cast(FileValue) args[0];
+	auto offset = (cast(IntegerValue) args[1]).value;
+	auto origin = (cast(IntegerValue) args[2]).value;
+
+	file.value.seek(offset, cast(int) origin);
+	return Value.Unit();
+}
+
+Value FTell(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.File]);
+
+	auto file = cast(FileValue) args[0];
+
+	return Value.Integer(cast(long) file.value.tell);
 }

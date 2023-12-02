@@ -1,0 +1,7 @@
+(srand ! [(time ! [])]) ;
+(i = 0) ;
+({i < 20} @ {
+	(stdout .d ((rand ! []) % 10)) ;
+	(stdout .s "\n") ;
+	(i = (i + 1))
+})

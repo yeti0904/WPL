@@ -86,7 +86,12 @@ class LambdaNode : Node {
 	}
 
 	override string toString() {
-		return format("{%s}", expr);
+		if (expr is null) {
+			return "{(empty)}";
+		}
+		else {
+			return format("{%s}", expr);
+		}
 	}
 }
 
@@ -154,6 +159,11 @@ class Parser {
 			}
 			case TokenType.LCurly: {
 				Next();
+				if (tokens[i].type == TokenType.RCurly) {
+					++ i;
+					return new LambdaNode(GetInfo());
+				}
+				
 				auto expr = ParseOperator();
 				auto ret  = new LambdaNode(GetInfo());
 				ret.expr  = expr;

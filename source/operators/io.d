@@ -37,3 +37,13 @@ static Value ReadLine(Value pleft, Value pright, Interpreter env) {
 	auto ret = left.readln();
 	return Value.String(ret);
 }
+
+static Value ReadByte(Value pleft, Value pright, Interpreter env) {
+	auto left = (cast(FileValue) pleft).value;
+
+	if (left.eof) {
+		return pright;
+	}
+
+	return Value.Integer(left.rawRead(new ubyte[1])[0]);
+}

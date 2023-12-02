@@ -20,6 +20,20 @@ import wpl.operators.imperative;
 
 struct Variable {
 	Value value;
+	bool  constant;
+
+	this(Value pvalue) {
+		value = pvalue;
+	}
+
+	this(Value pvalue, bool pconstant) {
+		value    = pvalue;
+		constant = pconstant;
+	}
+
+	static Variable Constant(Value value) {
+		return Variable(value, true);
+	}
 }
 
 alias OperatorFunc = Value function(Value, Value, Interpreter);
@@ -127,6 +141,7 @@ class Interpreter {
 		AddOp("!",  ValueType.Integer,   ValueType.Integer,  &XorInt);
 		AddOp("<<", ValueType.Integer,   ValueType.Integer,  &LShiftInt);
 		AddOp(">>", ValueType.Integer,   ValueType.Integer,  &RShiftInt);
+		AddOp(",b", ValueType.File,      ValueType.Integer,  &ReadByte);
 
 		// not strict operators
 		AddOp(";", &Chain);
@@ -150,6 +165,16 @@ class Interpreter {
 		AddFunction("import",  &Import,   1);
 		AddFunction("export",  &Export,   1);
 		// AddFunction("readf",   &ReadFile, 1);
+		AddFunction("srand",   &SRand,    1);
+		AddFunction("rand",    &Rand,     0);
+		AddFunction("exit",    &Exit,     1);
+		AddFunction("fseek",   &FSeek,    3);
+		AddFunction("ftell",   &FTell,    1);
+
+		// constnats
+		AddConstant("SEEK_SET", Value.Integer(SEEK_SET));
+		AddConstant("SEEK_CUR", Value.Integer(SEEK_CUR));
+		AddConstant("SEEK_END", Value.Integer(SEEK_END));
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -172,6 +197,10 @@ class Interpreter {
 		value.func          = func;
 		value.params.length = argsLen;
 		SetVariable(name, Variable(value));
+	}
+
+	void AddConstant(string name, Value value) {
+		SetVariable(name, Variable.Constant(value));
 	}
 
 	bool VariableExists(string name) {
@@ -253,6 +282,10 @@ class Interpreter {
 	}
 
 	Value Evaluate(Node pnode, bool evalVariables) {
+		if (pnode is null) {
+			return Value.Unit();
+		}
+	
 		switch (pnode.type) {
 			case NodeType.Integer: {
 				auto node = cast(IntegerNode) pnode;

@@ -28,7 +28,8 @@ int main(string[] args) {
 				}
 			}
 			else {
-				inFile = args[i];
+				inFile       = args[i];
+				programArgs ~= args[i];
 			}
 		}
 		else {
