@@ -9,26 +9,34 @@ import wpl.exception;
 import wpl.interpreter;
 
 int main(string[] args) {
-	string inFile;
-	bool   debugLexer = false;
+	string   inFile;
+	bool     debugLexer = false;
+	string[] programArgs;
 	
 	auto lexer       = new Lexer();
 	auto parser      = new Parser();
 	auto interpreter = new Interpreter();
 
 	for (size_t i = 1; i < args.length; ++ i) {
-		if (args[i][0] == '-') {
-			switch (args[i]) {
-				default: {
-					stderr.writefln("Invalid flag ''", args[i]);
-					return 1;
+		if (inFile == "") {
+			if (args[i][0] == '-') {
+				switch (args[i]) {
+					default: {
+						stderr.writefln("Invalid flag ''", args[i]);
+						return 1;
+					}
 				}
+			}
+			else {
+				inFile = args[i];
 			}
 		}
 		else {
-			inFile = args[i];
+			programArgs ~= args[i];
 		}
 	}
+
+	interpreter.AddArgs(programArgs);
 
 	if (inFile == "") {
 		writeln("WPL REPL");
@@ -41,6 +49,7 @@ int main(string[] args) {
 			parser.Reset();
 			
 			lexer.code = code;
+			lexer.file = "<stdin>";
 
 			try {
 				lexer.Lex();

@@ -122,6 +122,11 @@ class Interpreter {
 		AddOp(":",  ValueType.String,    ValueType.Integer,  &IndexString);
 		AddOp(":=", ValueType.CharRef,   ValueType.String,   &WriteChar);
 		AddOp(":",  ValueType.CharRef,   ValueType.String,   &DerefChar);
+		AddOp("&",  ValueType.Integer,   ValueType.Integer,  &AndInt);
+		AddOp("|",  ValueType.Integer,   ValueType.Integer,  &OrInt);
+		AddOp("!",  ValueType.Integer,   ValueType.Integer,  &XorInt);
+		AddOp("<<", ValueType.Integer,   ValueType.Integer,  &LShiftInt);
+		AddOp(">>", ValueType.Integer,   ValueType.Integer,  &RShiftInt);
 
 		// not strict operators
 		AddOp(";", &Chain);
@@ -144,7 +149,7 @@ class Interpreter {
 		AddFunction("free",    &Free,     1);
 		AddFunction("import",  &Import,   1);
 		AddFunction("export",  &Export,   1);
-		AddFunction("readf",   &ReadFile, 1);
+		// AddFunction("readf",   &ReadFile, 1);
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -219,6 +224,16 @@ class Interpreter {
 
 	void RemoveScope() {
 		scopes = scopes[0 .. $ - 1];
+	}
+
+	void AddArgs(string[] args) {
+		auto argv = new ArrayValue();
+
+		foreach (ref arg ; args) {
+			argv.values ~= Value.String(arg);
+		}
+
+		SetVariable("argv", Variable(argv));
 	}
 
 	void AssertVariable(string name, ErrorInfo info) {

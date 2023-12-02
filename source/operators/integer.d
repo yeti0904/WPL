@@ -89,3 +89,38 @@ static Value IntGreaterE(Value pleft, Value pright, Interpreter env) {
 
 	return left >= right? Value.Integer(-1) : Value.Integer(0);
 }
+
+static Value AndInt(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(IntegerValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+
+	return Value.Integer(left & right);
+}
+
+static Value OrInt(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(IntegerValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+
+	return Value.Integer(left | right);
+}
+
+static Value XorInt(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(IntegerValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+
+	return Value.Integer(left ^ right);
+}
+
+static Value LShiftInt(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(IntegerValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+
+	return Value.Integer(left << right);
+}
+
+static Value RShiftInt(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(IntegerValue) pleft).value;
+	auto right = (cast(IntegerValue) pright).value;
+
+	return Value.Integer(left >> right);
+}

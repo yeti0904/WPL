@@ -223,7 +223,7 @@ class PointerValue : Value {
 	}
 }
 
-class Structure : Value {
+class StructureValue : Value {
 	Value[string] values;
 
 	this() {
