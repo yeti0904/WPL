@@ -142,6 +142,8 @@ class Interpreter {
 		AddOp("<<", ValueType.Integer,   ValueType.Integer,  &LShiftInt);
 		AddOp(">>", ValueType.Integer,   ValueType.Integer,  &RShiftInt);
 		AddOp(",b", ValueType.File,      ValueType.Integer,  &ReadByte);
+		AddOp("%",  ValueType.String,    ValueType.String,   &StringFormat);
+		AddOp("%",  ValueType.String,    ValueType.Integer,  &StringFormat);
 
 		// not strict operators
 		AddOp(";", &Chain);
