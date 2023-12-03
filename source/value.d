@@ -17,6 +17,7 @@ enum ValueType {
 	Array,
 	Function,
 	Pointer,
+	StructureDef,
 	Structure,
 	CharRef
 }
@@ -77,6 +78,12 @@ class Value {
 
 	static ArrayValue Array(Value[] values) {
 		auto ret   = new ArrayValue();
+		ret.values = values;
+		return ret;
+	}
+
+	static StructureDefValue StructureDef(string[] values) {
+		auto ret   = new StructureDefValue();
 		ret.values = values;
 		return ret;
 	}
@@ -228,6 +235,24 @@ class PointerValue : Value {
 	}
 }
 
+class StructureDefValue : Value {
+	string[] values;
+
+	this() {
+		type = ValueType.StructureDef;
+	}
+
+	override string toString() {
+		string ret = "(\n";
+
+		foreach (value ; values) {
+			ret ~= format("    %s\n", value);
+		}
+
+		return ret ~ ')';
+	}
+}
+
 class StructureValue : Value {
 	Value[string] values;
 
@@ -236,10 +261,10 @@ class StructureValue : Value {
 	}
 
 	override string toString() {
-		string ret = "(";
+		string ret = "(\n";
 
 		foreach (key, ref value ; values) {
-			ret ~= value.toString() ~ ' ';
+			ret ~= format("    %s: %s\n", key, value.toString());
 		}
 
 		return ret ~ ')';

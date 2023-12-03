@@ -1,0 +1,6 @@
+(animal = (struct $ name $ sound)) ;
+(dog $= animal) ;
+((dog $: sound) := "woof") ;
+((dog $: name) := "dog") ;
+(stdout .s ((dog $:: name) + "\n")) ;
+(stdout .s ((dog $:: sound) + "\n"))
