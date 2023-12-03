@@ -11,6 +11,7 @@ import wpl.exception;
 import wpl.operators.io;
 import wpl.operators.array;
 import wpl.operators.logic;
+import wpl.operators.floats;
 import wpl.operators.strings;
 import wpl.operators.integer;
 import wpl.operators.pointer;
@@ -150,6 +151,18 @@ class Interpreter {
 		AddOp("$=",  ValueType.Variable,     ValueType.StructureDef, &AssignStructure);
 		AddOp("$:",  ValueType.Structure,    ValueType.Variable,     &StructMember);
 		AddOp("$::", ValueType.Structure,    ValueType.Variable,     &StructMemberValue);
+		AddOp("::",  ValueType.Array,        ValueType.Integer,      &ArrayIndexValue);
+		AddOp("+",   ValueType.Float,        ValueType.Float,        &AddFloat);
+		AddOp("-",   ValueType.Float,        ValueType.Float,        &SubFloat);
+		AddOp("*",   ValueType.Float,        ValueType.Float,        &MulFloat);
+		AddOp("/",   ValueType.Float,        ValueType.Float,        &DivFloat);
+		AddOp("^",   ValueType.Float,        ValueType.Float,        &PowFloat);
+		AddOp("%",   ValueType.Float,        ValueType.Float,        &ModFloat);
+		AddOp("<",   ValueType.Float,        ValueType.Float,        &FloatLess);
+		AddOp("<=",  ValueType.Float,        ValueType.Float,        &FloatLessE);
+		AddOp(">",   ValueType.Float,        ValueType.Float,        &FloatGreater);
+		AddOp(">=",  ValueType.Float,        ValueType.Float,        &FloatGreaterE);
+		AddOp(".f",  ValueType.File,         ValueType.Float,        &WriteFloat);
 
 		// not strict operators
 		AddOp(";", &Chain);
@@ -183,12 +196,15 @@ class Interpreter {
 		AddFunction("ftell",     &FTell,    1);
 		AddFunction("char_code", &CharCode, 1);
 		AddFunction("as_char",   &AsChar,   1);
+		AddFunction("float",     &Float,    1);
+		AddFunction("int",       &Int,      1);
 
 		// constnats
 		AddConstant("SEEK_SET", Value.Integer(SEEK_SET));
 		AddConstant("SEEK_CUR", Value.Integer(SEEK_CUR));
 		AddConstant("SEEK_END", Value.Integer(SEEK_END));
 		AddConstant("struct",   Value.StructureDef([]));
+		AddConstant("range",    Value.StructureDef(["start", "end", "step"]));
 	}
 
 	void AddOp(string name, ValueType left, ValueType right, OperatorFunc func) {
@@ -336,6 +352,11 @@ class Interpreter {
 				}
 
 				return ret;
+			}
+			case NodeType.Float: {
+				auto node = cast(FloatNode) pnode;
+
+				return Value.Float(node.value);
 			}
 			case NodeType.Expression: {
 				auto node = cast(ExpressionNode) pnode;

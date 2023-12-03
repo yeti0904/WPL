@@ -1,0 +1,19 @@
+(filter = ([array func] => {
+	(ret = []) ;
+	(i = 0) ;
+	({i < (array - 0)} @ {
+		((func ! [(array :: i)]) ? {
+			(ret + (array :: i))
+		}) ;
+		(i = (i + 1))
+	}) ;
+	ret
+})) ;
+(array = [1 2 3 4 5 6 7 8 9 10]) ;
+(array = (filter ! [array ([n] => {(n % 2) == 0})])) ;
+(i = 0) ;
+({i < (array - 0)} @ {
+	(stdout .d (array :: i)) ;
+	(stdout .s "\n") ;
+	(i = (i + 1))
+})

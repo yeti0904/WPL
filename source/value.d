@@ -19,7 +19,8 @@ enum ValueType {
 	Pointer,
 	StructureDef,
 	Structure,
-	CharRef
+	CharRef,
+	Float
 }
 
 enum LLType { // Low Level Type
@@ -85,6 +86,12 @@ class Value {
 	static StructureDefValue StructureDef(string[] values) {
 		auto ret   = new StructureDefValue();
 		ret.values = values;
+		return ret;
+	}
+
+	static FloatValue Float(double value) {
+		auto ret  = new FloatValue();
+		ret.value = value;
 		return ret;
 	}
 }
@@ -280,5 +287,17 @@ class CharRefValue : Value {
 
 	override string toString() {
 		return format("%.8X (%c)", cast(ulong) value, *value);
+	}
+}
+
+class FloatValue : Value {
+	double value;
+
+	this() {
+		type = ValueType.Float;
+	}
+
+	override string toString() {
+		return format("%g", value);
 	}
 }

@@ -27,6 +27,19 @@ static Value ArrayIndex(Value pleft, Value pright, Interpreter env) {
 	return Value.Reference(&left.values[right]);
 }
 
+static Value ArrayIndexValue(Value pleft, Value pright, Interpreter env) {
+	auto left  = cast(ArrayValue) pleft;
+	auto right = (cast(IntegerValue) pright).value;
+
+	if ((right >= left.values.length) || (right < 0)) {
+		throw new OperatorException(format(
+			"Array index (%d) out of bounds (%d)", right, left.values.length
+		));
+	}
+
+	return left.values[right];
+}
+
 static Value ArrayLength(Value pleft, Value pright, Interpreter env) {
 	auto left  = cast(ArrayValue) pleft;
 	auto right = (cast(IntegerValue) pright).value;

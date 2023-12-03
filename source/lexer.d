@@ -4,6 +4,7 @@ import std.stdio;
 import std.string;
 import std.algorithm;
 import core.stdc.stdlib;
+import wpl.util;
 import wpl.error;
 import wpl.language;
 import wpl.exception;
@@ -20,6 +21,7 @@ enum TokenType {
 	Integer,
 	String,
 	Identifier,
+	Float,
 	End
 }
 
@@ -67,8 +69,11 @@ class Lexer {
 			return;
 		}
 	
-		if (reading.isNumeric()) {
+		if (reading.IsInt()) {
 			AddToken(TokenType.Integer);
+		}
+		else if (reading.IsFloat()) {
+			AddToken(TokenType.Float);
 		}
 		else if (Language.operators.canFind(reading)) {
 			AddToken(TokenType.Operator);

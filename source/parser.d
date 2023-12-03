@@ -15,7 +15,8 @@ enum NodeType {
 	Identifier,
 	Expression,
 	Lambda,
-	Array
+	Array,
+	Float
 }
 
 class Node {
@@ -114,6 +115,19 @@ class ArrayNode : Node {
 	}
 }
 
+class FloatNode : Node {
+	double value;
+
+	this(ErrorInfo pinfo) {
+		type = NodeType.Float;
+		info = pinfo;
+	}
+
+	override string toString() {
+		return format("%g", value);
+	}
+}
+
 class Parser {
 	Token[] tokens;
 	size_t  i;
@@ -195,8 +209,14 @@ class Parser {
 				return ret;
 			}
 			case TokenType.Identifier: {
-				auto ret  = new IdentifierNode(GetInfo());
+				auto ret = new IdentifierNode(GetInfo());
 				ret.name = tokens[i].contents;
+				++ i;
+				return ret;
+			}
+			case TokenType.Float: {
+				auto ret  = new FloatNode(GetInfo());
+				ret.value = parse!double(tokens[i].contents);
 				++ i;
 				return ret;
 			}

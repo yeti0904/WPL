@@ -47,3 +47,11 @@ static Value ReadByte(Value pleft, Value pright, Interpreter env) {
 
 	return Value.Integer(left.rawRead(new ubyte[1])[0]);
 }
+
+static Value WriteFloat(Value pleft, Value pright, Interpreter env) {
+	auto left  = (cast(FileValue) pleft).value;
+	auto right = (cast(FloatValue) pright).value;
+
+	left.writef("%g", right);
+	return Value.Unit();
+}

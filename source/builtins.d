@@ -1,6 +1,7 @@
 module wpl.builtins;
 
 import std.file;
+import std.math;
 import std.path;
 import std.stdio;
 import std.format;
@@ -256,4 +257,20 @@ Value AsChar(Value[] args, Interpreter env) {
 
 	auto ch = (cast(IntegerValue) args[0]).value;
 	return Value.String("" ~ (cast(char) ch));
+}
+
+Value Float(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.Integer]);
+
+	auto value = (cast(IntegerValue) args[0]).value;
+
+	return Value.Float(cast(double) value);
+}
+
+Value Int(Value[] args, Interpreter env) {
+	AssertArgs(args, [ValueType.Float]);
+
+	auto value = (cast(FloatValue) args[0]).value;
+
+	return Value.Integer(cast(long) value);
 }
